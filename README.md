@@ -1,50 +1,75 @@
-# Welcome to your Expo app 👋
+# Safety Tracker App 📍🛡️
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native Expo app that tracks your location periodically and sends SOS alerts via WhatsApp if you haven't used the app for a configurable period.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Location Tracking**: Periodically tracks GPS coordinates and stores them locally
+- **SOS Alerts**: Automatically sends WhatsApp messages to emergency contacts if app inactivity exceeds threshold
+- **Configurable Settings**: Customize tracking interval and SOS trigger time
+- **Local Storage**: Uses SQLite for secure local data storage
+- **Background Operation**: Runs location tracking in the background (with OS limitations)
 
+## Architecture
+
+The app follows a modular agent-based architecture:
+
+- **LocationTrackerAgent**: Handles GPS tracking and storage
+- **AppUsageAgent**: Monitors app lifecycle events
+- **SOSTriggerAgent**: Checks inactivity and triggers SOS
+- **SettingsAgent**: Manages app configuration
+
+## Tech Stack
+
+- **Framework**: React Native with Expo
+- **Language**: TypeScript
+- **Navigation**: Expo Router
+- **Database**: Expo SQLite
+- **Location**: Expo Location
+- **UI**: React Native Paper
+- **Background Tasks**: Expo Background Fetch
+
+## Getting Started
+
+1. **Install dependencies**
    ```bash
    npm install
    ```
 
-2. Start the app
-
+2. **Start the development server**
    ```bash
-   npx expo start
+   npm start
    ```
 
-In the output, you'll find options to open the app in a
+3. **Run on device/emulator**
+   - For Android: `npm run android`
+   - For iOS: `npm run ios`
+   - For web: `npm run web`
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Configuration
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Settings can be configured through the app:
 
-## Get a fresh project
+- **Location Interval**: How often to track location (minutes)
+- **SOS Threshold**: Hours of inactivity before triggering SOS
+- **Emergency Contacts**: Phone numbers for SOS messages
 
-When you're ready, run:
+## Permissions Required
 
-```bash
-npm run reset-project
-```
+- Location access (foreground and background)
+- Storage access for local database
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Limitations
 
-## Learn more
+- Background location tracking is limited by mobile OS restrictions
+- WhatsApp deep links require WhatsApp to be installed
+- App must be kept alive for continuous monitoring
 
-To learn more about developing your project with Expo, look at the following resources:
+## Development
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Run linting: `npm run lint`
+- Reset project: `npm run reset-project`
 
-## Join the community
+## License
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This project is for educational and safety purposes.
