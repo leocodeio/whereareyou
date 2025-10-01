@@ -1,15 +1,97 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, Alert } from 'react-native';
 import { Text, Card, Button, ActivityIndicator, FAB } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Database, LocationLog } from '@/storage/Database';
 import { logger } from '@/utils/Logger';
+import { Colors, Spacing, BorderRadius, Shadow, Typography } from '@/config/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function LogsScreen() {
   const [logs, setLogs] = useState<LocationLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
+
   const database = new Database();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+    },
+    loadingText: {
+      marginTop: Spacing.md,
+      fontSize: Typography.body.fontSize,
+      color: colors.text,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: Spacing.md,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    headerText: {
+      fontSize: Typography.heading3.fontSize,
+      fontWeight: Typography.heading3.fontWeight,
+      color: colors.text,
+    },
+    emptyContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: Spacing.xl,
+      backgroundColor: colors.background,
+    },
+    emptyText: {
+      fontSize: Typography.heading3.fontSize,
+      fontWeight: Typography.heading3.fontWeight,
+      marginBottom: Spacing.sm,
+      textAlign: 'center',
+      color: colors.text,
+    },
+    emptySubtext: {
+      fontSize: Typography.body.fontSize,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+    listContainer: {
+      padding: Spacing.md,
+    },
+    logCard: {
+      marginBottom: Spacing.sm,
+      backgroundColor: colors.surface,
+      borderRadius: BorderRadius.md,
+      ...Shadow.sm,
+    },
+    timestamp: {
+      fontSize: Typography.caption.fontSize,
+      color: colors.textSecondary,
+      marginBottom: Spacing.xs,
+    },
+    logText: {
+      fontSize: Typography.body.fontSize,
+      color: colors.text,
+    },
+    fab: {
+      position: 'absolute',
+      margin: Spacing.md,
+      right: 0,
+      bottom: 0,
+      backgroundColor: colors.primary,
+    },
+  });
 
   useEffect(() => {
     loadLogs();
@@ -66,26 +148,32 @@ export default function LogsScreen() {
         <Text style={styles.timestamp}>
           {new Date(item.timestamp).toLocaleString()}
         </Text>
-        <Text>Latitude: {item.latitude.toFixed(6)}</Text>
-        <Text>Longitude: {item.longitude.toFixed(6)}</Text>
+        <Text style={styles.logText}>Latitude: {item.latitude.toFixed(6)}</Text>
+        <Text style={styles.logText}>Longitude: {item.longitude.toFixed(6)}</Text>
       </Card.Content>
     </Card>
   );
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" />
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Loading logs...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Location Logs ({logs.length})</Text>
-        <Button onPress={clearOldLogs} mode="outlined" compact>
+        <Button 
+          onPress={clearOldLogs} 
+          mode="outlined" 
+          compact
+          textColor={colors.primary}
+          buttonColor={colors.surface}
+        >
           Clear Old
         </Button>
       </View>
@@ -114,70 +202,8 @@ export default function LogsScreen() {
         onPress={onRefresh}
         style={styles.fab}
         loading={refreshing}
+        color={colors.surface}
       />
-    </View>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  headerText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-  },
-  listContainer: {
-    padding: 16,
-  },
-  logCard: {
-    marginBottom: 8,
-  },
-  timestamp: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
-  },
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
-  },
-});

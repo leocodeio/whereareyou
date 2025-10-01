@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
-import { TextInput, Button, Text, Card } from 'react-native-paper';
+import { View, StyleSheet, Alert, ScrollView } from 'react-native';
+import { TextInput, Button, Text, Card, ActivityIndicator } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { SettingsAgent, Settings } from '@/agents/SettingsAgent';
 import { logger } from '@/utils/Logger';
+import { Colors, Spacing, BorderRadius, Shadow, Typography } from '@/config/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function SettingsScreen() {
   const [settings, setSettings] = useState<Settings>({
@@ -13,6 +16,9 @@ export default function SettingsScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [newContact, setNewContact] = useState('');
+
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
 
   const settingsAgent = new SettingsAgent();
 
@@ -65,120 +71,192 @@ export default function SettingsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <Text>Loading settings...</Text>
-      </View>
+      <SafeAreaView style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.text }]}>Loading settings...</Text>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Title title="Location Settings" />
-        <Card.Content>
-          <TextInput
-            label="Location Interval (minutes)"
-            value={settings.locationIntervalMinutes.toString()}
-            onChangeText={(text) => {
-              const value = parseInt(text) || 1;
-              setSettings(prev => ({ ...prev, locationIntervalMinutes: value }));
-            }}
-            keyboardType="numeric"
-            style={styles.input}
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <Card style={[styles.card, { backgroundColor: colors.card }, Shadow.md]}>
+          <Card.Title 
+            title="Location Settings" 
+            titleStyle={[Typography.heading3, { color: colors.text }]}
           />
-        </Card.Content>
-      </Card>
+          <Card.Content>
+            <TextInput
+              label="Location Interval (minutes)"
+              value={settings.locationIntervalMinutes.toString()}
+              onChangeText={(text) => {
+                const value = parseInt(text) || 1;
+                setSettings(prev => ({ ...prev, locationIntervalMinutes: value }));
+              }}
+              keyboardType="numeric"
+              style={styles.input}
+              theme={{
+                colors: {
+                  primary: colors.primary,
+                  background: colors.surface,
+                  onSurface: colors.text,
+                }
+              }}
+            />
+          </Card.Content>
+        </Card>
 
-      <Card style={styles.card}>
-        <Card.Title title="SOS Settings" />
-        <Card.Content>
-          <TextInput
-            label="Inactivity Threshold (hours)"
-            value={settings.inactivityThresholdHours.toString()}
-            onChangeText={(text) => {
-              const value = parseInt(text) || 1;
-              setSettings(prev => ({ ...prev, inactivityThresholdHours: value }));
-            }}
-            keyboardType="numeric"
-            style={styles.input}
+        <Card style={[styles.card, { backgroundColor: colors.card }, Shadow.md]}>
+          <Card.Title 
+            title="SOS Settings" 
+            titleStyle={[Typography.heading3, { color: colors.text }]}
           />
+          <Card.Content>
+            <TextInput
+              label="Inactivity Threshold (hours)"
+              value={settings.inactivityThresholdHours.toString()}
+              onChangeText={(text) => {
+                const value = parseInt(text) || 1;
+                setSettings(prev => ({ ...prev, inactivityThresholdHours: value }));
+              }}
+              keyboardType="numeric"
+              style={styles.input}
+              theme={{
+                colors: {
+                  primary: colors.primary,
+                  background: colors.surface,
+                  onSurface: colors.text,
+                }
+              }}
+            />
 
-          <Text style={styles.subtitle}>SOS Contacts</Text>
-          {settings.sosContacts.map((contact, index) => (
-            <View key={index} style={styles.contactRow}>
-              <Text style={styles.contactText}>{contact}</Text>
-              <Button onPress={() => removeContact(index)} mode="outlined" compact>
-                Remove
+            <Text style={[styles.subtitle, Typography.bodyMedium, { color: colors.text }]}>
+              SOS Contacts
+            </Text>
+            {settings.sosContacts.map((contact, index) => (
+              <View key={index} style={[styles.contactRow, { backgroundColor: colors.surfaceVariant }]}>
+                <Text style={[styles.contactText, Typography.body, { color: colors.text }]}>
+                  {contact}
+                </Text>
+                <Button 
+                  onPress={() => removeContact(index)} 
+                  mode="outlined" 
+                  compact
+                  style={{ borderColor: colors.error }}
+                  labelStyle={{ color: colors.error }}
+                >
+                  Remove
+                </Button>
+              </View>
+            ))}
+
+            <View style={styles.addContactRow}>
+              <TextInput
+                label="Add phone number"
+                value={newContact}
+                onChangeText={setNewContact}
+                keyboardType="phone-pad"
+                style={[styles.input, styles.contactInput]}
+                theme={{
+                  colors: {
+                    primary: colors.primary,
+                    background: colors.surface,
+                    onSurface: colors.text,
+                  }
+                }}
+              />
+              <Button 
+                onPress={addContact} 
+                mode="contained" 
+                disabled={!newContact.trim()}
+                style={[styles.addButton, { backgroundColor: colors.primary }]}
+                labelStyle={{ color: '#FFFFFF' }}
+              >
+                Add
               </Button>
             </View>
-          ))}
+          </Card.Content>
+        </Card>
 
-          <View style={styles.addContactRow}>
-            <TextInput
-              label="Add phone number"
-              value={newContact}
-              onChangeText={setNewContact}
-              keyboardType="phone-pad"
-              style={[styles.input, { flex: 1 }]}
-            />
-            <Button onPress={addContact} mode="contained" disabled={!newContact.trim()}>
-              Add
-            </Button>
-          </View>
-        </Card.Content>
-      </Card>
-
-      <Button
-        mode="contained"
-        onPress={saveSettings}
-        loading={saving}
-        disabled={saving}
-        style={styles.saveButton}
-      >
-        Save Settings
-      </Button>
-    </View>
+        <Button
+          mode="contained"
+          onPress={saveSettings}
+          loading={saving}
+          disabled={saving}
+          style={[styles.saveButton, { backgroundColor: colors.primary }]}
+          labelStyle={[Typography.bodyMedium, { color: '#FFFFFF' }]}
+        >
+          Save Settings
+        </Button>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#f5f5f5',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: Spacing.md,
+    paddingBottom: Spacing.xl,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: Spacing.md,
+    fontSize: Typography.body.fontSize,
   },
   card: {
-    marginBottom: 16,
+    marginBottom: Spacing.md,
+    borderRadius: BorderRadius.lg,
   },
   input: {
-    marginBottom: 16,
+    marginBottom: Spacing.md,
   },
   subtitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    marginTop: 16,
+    fontSize: Typography.bodyMedium.fontSize,
+    fontWeight: Typography.bodyMedium.fontWeight,
+    marginBottom: Spacing.sm,
+    marginTop: Spacing.md,
   },
   contactRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 4,
-    marginBottom: 8,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.sm,
   },
   contactText: {
     flex: 1,
-    fontSize: 16,
+    fontSize: Typography.body.fontSize,
   },
   addContactRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: Spacing.sm,
+  },
+  contactInput: {
+    flex: 1,
+  },
+  addButton: {
+    borderRadius: BorderRadius.md,
   },
   saveButton: {
-    marginTop: 16,
+    marginTop: Spacing.md,
+    borderRadius: BorderRadius.md,
   },
 });

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, ScrollView } from 'react-native';
 import { Text, Card, Button, Switch, ActivityIndicator } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { BackgroundTaskManager } from '@/services/BackgroundTaskManager';
 import { AppUsageAgent } from '@/agents/AppUsageAgent';
 import { Database, LocationLog } from '@/storage/Database';
 import { logger } from '@/utils/Logger';
+import { Colors, Spacing, BorderRadius, Shadow, Typography } from '@/config/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function HomeScreen() {
   const [isTracking, setIsTracking] = useState(false);
@@ -15,6 +18,9 @@ export default function HomeScreen() {
     inactivityThresholdHours: 24,
     sosContacts: [] as string[],
   });
+
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
 
   const taskManager = new BackgroundTaskManager();
   const appUsageAgent = new AppUsageAgent();
@@ -92,95 +98,163 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
+      <SafeAreaView style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.text }]}>Loading...</Text>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Title title="Safety Tracker Status" />
-        <Card.Content>
-          <View style={styles.statusRow}>
-            <Text style={styles.statusLabel}>Tracking Active:</Text>
-            <Switch value={isTracking} onValueChange={toggleTracking} />
-          </View>
-
-          <Button
-            mode="contained"
-            onPress={toggleTracking}
-            style={styles.toggleButton}
-            disabled={loading}
-          >
-            {isTracking ? 'Stop Tracking' : 'Start Tracking'}
-          </Button>
-        </Card.Content>
-      </Card>
-
-      <Card style={styles.card}>
-        <Card.Title title="Current Settings" />
-        <Card.Content>
-          <Text>Interval: {settings.locationIntervalMinutes} minutes</Text>
-          <Text>SOS Threshold: {settings.inactivityThresholdHours} hours</Text>
-          <Text>SOS Contacts: {settings.sosContacts.length}</Text>
-        </Card.Content>
-      </Card>
-
-      <Card style={styles.card}>
-        <Card.Title title="Last Location" />
-        <Card.Content>
-          {lastLocation ? (
-            <View>
-              <Text>Latitude: {lastLocation.latitude.toFixed(6)}</Text>
-              <Text>Longitude: {lastLocation.longitude.toFixed(6)}</Text>
-              <Text>Time: {new Date(lastLocation.timestamp).toLocaleString()}</Text>
-              <Button onPress={refreshLocation} mode="outlined" style={styles.refreshButton}>
-                Refresh Location
-              </Button>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <Card style={[styles.card, { backgroundColor: colors.card }, Shadow.md]}>
+          <Card.Title 
+            title="Safety Tracker Status" 
+            titleStyle={[Typography.heading3, { color: colors.text }]}
+          />
+          <Card.Content>
+            <View style={styles.statusRow}>
+              <Text style={[styles.statusLabel, Typography.bodyMedium, { color: colors.text }]}>
+                Tracking Active:
+              </Text>
+              <Switch 
+                value={isTracking} 
+                onValueChange={toggleTracking}
+                thumbColor={isTracking ? colors.primary : colors.surface}
+                trackColor={{ false: colors.border, true: colors.primary }}
+              />
             </View>
-          ) : (
-            <Text>No location data available</Text>
-          )}
-        </Card.Content>
-      </Card>
 
-      <Card style={styles.card}>
-        <Card.Title title="Quick Actions" />
-        <Card.Content>
-          <Button
-            mode="outlined"
-            onPress={() => {
-              // Navigate to settings - will implement with navigation
-              Alert.alert('Info', 'Settings screen will be available in navigation');
-            }}
-            style={styles.actionButton}
-          >
-            Open Settings
-          </Button>
-          <Button
-            mode="outlined"
-            onPress={() => {
-              // Navigate to logs
-              Alert.alert('Info', 'Logs screen will be available in navigation');
-            }}
-            style={styles.actionButton}
-          >
-            View Location Logs
-          </Button>
-        </Card.Content>
-      </Card>
-    </ScrollView>
+            <Button
+              mode="contained"
+              onPress={toggleTracking}
+              style={[styles.toggleButton, { backgroundColor: colors.primary }]}
+              labelStyle={[Typography.bodyMedium, { color: '#FFFFFF' }]}
+              disabled={loading}
+            >
+              {isTracking ? 'Stop Tracking' : 'Start Tracking'}
+            </Button>
+          </Card.Content>
+        </Card>
+
+        <Card style={[styles.card, { backgroundColor: colors.card }, Shadow.md]}>
+          <Card.Title 
+            title="Current Settings" 
+            titleStyle={[Typography.heading3, { color: colors.text }]}
+          />
+          <Card.Content>
+            <View style={styles.settingRow}>
+              <Text style={[Typography.body, { color: colors.textSecondary }]}>Interval:</Text>
+              <Text style={[Typography.bodyMedium, { color: colors.text }]}>
+                {settings.locationIntervalMinutes} minutes
+              </Text>
+            </View>
+            <View style={styles.settingRow}>
+              <Text style={[Typography.body, { color: colors.textSecondary }]}>SOS Threshold:</Text>
+              <Text style={[Typography.bodyMedium, { color: colors.text }]}>
+                {settings.inactivityThresholdHours} hours
+              </Text>
+            </View>
+            <View style={styles.settingRow}>
+              <Text style={[Typography.body, { color: colors.textSecondary }]}>SOS Contacts:</Text>
+              <Text style={[Typography.bodyMedium, { color: colors.text }]}>
+                {settings.sosContacts.length}
+              </Text>
+            </View>
+          </Card.Content>
+        </Card>
+
+        <Card style={[styles.card, { backgroundColor: colors.card }, Shadow.md]}>
+          <Card.Title 
+            title="Last Location" 
+            titleStyle={[Typography.heading3, { color: colors.text }]}
+          />
+          <Card.Content>
+            {lastLocation ? (
+              <View>
+                <View style={styles.locationRow}>
+                  <Text style={[Typography.body, { color: colors.textSecondary }]}>Latitude:</Text>
+                  <Text style={[Typography.bodyMedium, { color: colors.text }]}>
+                    {lastLocation.latitude.toFixed(6)}
+                  </Text>
+                </View>
+                <View style={styles.locationRow}>
+                  <Text style={[Typography.body, { color: colors.textSecondary }]}>Longitude:</Text>
+                  <Text style={[Typography.bodyMedium, { color: colors.text }]}>
+                    {lastLocation.longitude.toFixed(6)}
+                  </Text>
+                </View>
+                <View style={styles.locationRow}>
+                  <Text style={[Typography.body, { color: colors.textSecondary }]}>Time:</Text>
+                  <Text style={[Typography.bodyMedium, { color: colors.text }]}>
+                    {new Date(lastLocation.timestamp).toLocaleString()}
+                  </Text>
+                </View>
+                <Button 
+                  onPress={refreshLocation} 
+                  mode="outlined" 
+                  style={[styles.refreshButton, { borderColor: colors.primary }]}
+                  labelStyle={{ color: colors.primary }}
+                >
+                  Refresh Location
+                </Button>
+              </View>
+            ) : (
+              <Text style={[Typography.body, { color: colors.textSecondary }]}>
+                No location data available
+              </Text>
+            )}
+          </Card.Content>
+        </Card>
+
+        <Card style={[styles.card, { backgroundColor: colors.card }, Shadow.md]}>
+          <Card.Title 
+            title="Quick Actions" 
+            titleStyle={[Typography.heading3, { color: colors.text }]}
+          />
+          <Card.Content>
+            <Button
+              mode="outlined"
+              onPress={() => {
+                Alert.alert('Info', 'Settings screen will be available in navigation');
+              }}
+              style={[styles.actionButton, { borderColor: colors.primary }]}
+              labelStyle={{ color: colors.primary }}
+            >
+              Open Settings
+            </Button>
+            <Button
+              mode="outlined"
+              onPress={() => {
+                Alert.alert('Info', 'Logs screen will be available in navigation');
+              }}
+              style={[styles.actionButton, { borderColor: colors.primary }]}
+              labelStyle={{ color: colors.primary }}
+            >
+              View Location Logs
+            </Button>
+          </Card.Content>
+        </Card>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#f5f5f5',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: Spacing.md,
+    paddingBottom: Spacing.xl,
   },
   loadingContainer: {
     flex: 1,
@@ -188,29 +262,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    marginTop: 16,
-    fontSize: 16,
+    marginTop: Spacing.md,
+    fontSize: Typography.body.fontSize,
   },
   card: {
-    marginBottom: 16,
+    marginBottom: Spacing.md,
+    borderRadius: BorderRadius.lg,
   },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: Spacing.md,
   },
   statusLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: Typography.bodyMedium.fontSize,
+    fontWeight: Typography.bodyMedium.fontWeight,
   },
   toggleButton: {
-    marginTop: 8,
+    marginTop: Spacing.sm,
+    borderRadius: BorderRadius.md,
+  },
+  settingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
   },
   refreshButton: {
-    marginTop: 12,
+    marginTop: Spacing.md,
+    borderRadius: BorderRadius.md,
   },
   actionButton: {
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
+    borderRadius: BorderRadius.md,
   },
 });
