@@ -99,12 +99,17 @@ export default function SettingsScreen() {
                 setSettings(prev => ({ ...prev, locationIntervalMinutes: value }));
               }}
               keyboardType="numeric"
-              style={styles.input}
+              mode="outlined"
+              style={[styles.input, { backgroundColor: colors.surfaceVariant, borderRadius: BorderRadius.md }]}
+              outlineColor={colors.borderVariant}
+              activeOutlineColor={colors.primary}
+              textColor={colors.text}
               theme={{
                 colors: {
                   primary: colors.primary,
-                  background: colors.surface,
+                  background: colors.surfaceVariant,
                   onSurface: colors.text,
+                  placeholder: colors.textSecondary,
                 }
               }}
             />
@@ -125,12 +130,17 @@ export default function SettingsScreen() {
                 setSettings(prev => ({ ...prev, inactivityThresholdHours: value }));
               }}
               keyboardType="numeric"
-              style={styles.input}
+              mode="outlined"
+              style={[styles.input, { backgroundColor: colors.surfaceVariant, borderRadius: BorderRadius.md }]}
+              outlineColor={colors.borderVariant}
+              activeOutlineColor={colors.primary}
+              textColor={colors.text}
               theme={{
                 colors: {
                   primary: colors.primary,
-                  background: colors.surface,
+                  background: colors.surfaceVariant,
                   onSurface: colors.text,
+                  placeholder: colors.textSecondary,
                 }
               }}
             />
@@ -161,12 +171,17 @@ export default function SettingsScreen() {
                 value={newContact}
                 onChangeText={setNewContact}
                 keyboardType="phone-pad"
-                style={[styles.input, styles.contactInput]}
+                mode="outlined"
+                style={[styles.input, styles.contactInput, { backgroundColor: colors.surfaceVariant, borderRadius: BorderRadius.md }]}
+                outlineColor={colors.borderVariant}
+                activeOutlineColor={colors.primary}
+                textColor={colors.text}
                 theme={{
                   colors: {
                     primary: colors.primary,
-                    background: colors.surface,
+                    background: colors.surfaceVariant,
                     onSurface: colors.text,
+                    placeholder: colors.textSecondary,
                   }
                 }}
               />

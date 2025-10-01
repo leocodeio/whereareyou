@@ -21,6 +21,16 @@ export default function TabLayout() {
           backgroundColor: colors.card,
           borderTopColor: colors.border,
           borderTopWidth: 1,
+          height: 64,
+          paddingBottom: 8,
+          paddingTop: 6,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+        },
+        tabBarIconStyle: {
+          marginTop: 2,
         },
       }}>
       <Tabs.Screen
@@ -34,14 +44,14 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="gear" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="gear" color={color} />,
         }}
       />
       <Tabs.Screen
         name="logs"
         options={{
           title: 'Logs',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="list.bullet" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="clock" color={color} />,
         }}
       />
     </Tabs>

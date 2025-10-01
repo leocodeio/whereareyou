@@ -15,6 +15,9 @@ type IconSymbolName = keyof typeof MAPPING;
  */
 const MAPPING = {
   'house.fill': 'home',
+  'gear': 'settings',
+  'clock': 'history',
+  'list.bullet': 'list',
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
@@ -25,6 +28,8 @@ const MAPPING = {
  * This ensures a consistent look across platforms, and optimal resource usage.
  * Icon `name`s are based on SF Symbols and require manual mapping to Material Icons.
  */
+let warned: Record<string, boolean> = {};
+
 export function IconSymbol({
   name,
   size = 24,
@@ -37,5 +42,12 @@ export function IconSymbol({
   style?: StyleProp<TextStyle>;
   weight?: SymbolWeight;
 }) {
-  return <MaterialIcons color={color} size={size} name={MAPPING[name]} style={style} />;
+  const mapped = MAPPING[name];
+  if (!mapped) {
+    if (!warned[name]) {
+      console.warn(`[IconSymbol] Unmapped icon name: "${name}"`);
+      warned[name] = true;
+    }
+  }
+  return <MaterialIcons color={color} size={size} name={mapped || 'help-outline'} style={style} />;
 }
